@@ -1,0 +1,65 @@
+name: collection_agent_app
+description: Field collection agent app for managing customer payments.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Database
+  drift: ^2.14.0
+  sqlite3_flutter_libs: ^0.5.0
+  path_provider: ^2.1.0
+  path: ^1.9.0
+
+  # State management
+  flutter_riverpod: ^2.4.0
+  riverpod_annotation: ^2.3.0
+
+  # Excel import/export
+  excel: ^4.0.3
+
+  # File picking & sharing
+  file_picker: ^8.1.4
+  share_plus: ^10.1.4
+
+  # Persistent settings (gold rate)
+  shared_preferences: ^2.5.5
+
+  # UI utilities
+  intl: ^0.18.1
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  drift_dev: ^2.14.0
+  build_runner: ^2.4.0
+  riverpod_generator: ^2.3.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0  
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true 
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon.png
+
+flutter_native_splash:
+  color: "#FFFFFF"         
+  image: assets/icon.png   
+  
+  android_12:
+    color: "#FFFFFF"
+    image: assets/icon.png
