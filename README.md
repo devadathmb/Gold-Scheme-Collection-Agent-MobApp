@@ -183,6 +183,3 @@ Copy `android_manifest_sample.xml` content into your actual `android/app/src/mai
 | `flutter_launcher_icons` | App icon generation |
 | `flutter_native_splash` | Native splash screen generation |
 
-```
-
-```
