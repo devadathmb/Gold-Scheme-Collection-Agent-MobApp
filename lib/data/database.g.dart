@@ -1008,18 +1008,279 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
   }
 }
 
+class $PendingMessagesTable extends PendingMessages
+    with TableInfo<$PendingMessagesTable, PendingMessage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PendingMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+      'phone', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _messageMeta =
+      const VerificationMeta('message');
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>(
+      'message', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, phone, message, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pending_messages';
+  @override
+  VerificationContext validateIntegrity(Insertable<PendingMessage> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+          _phoneMeta, phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta));
+    } else if (isInserting) {
+      context.missing(_phoneMeta);
+    }
+    if (data.containsKey('message')) {
+      context.handle(_messageMeta,
+          message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+    } else if (isInserting) {
+      context.missing(_messageMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PendingMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PendingMessage(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      phone: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}phone'])!,
+      message: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}message'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $PendingMessagesTable createAlias(String alias) {
+    return $PendingMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class PendingMessage extends DataClass implements Insertable<PendingMessage> {
+  final int id;
+  final String phone;
+  final String message;
+  final DateTime createdAt;
+  const PendingMessage(
+      {required this.id,
+      required this.phone,
+      required this.message,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['phone'] = Variable<String>(phone);
+    map['message'] = Variable<String>(message);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PendingMessagesCompanion toCompanion(bool nullToAbsent) {
+    return PendingMessagesCompanion(
+      id: Value(id),
+      phone: Value(phone),
+      message: Value(message),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PendingMessage.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PendingMessage(
+      id: serializer.fromJson<int>(json['id']),
+      phone: serializer.fromJson<String>(json['phone']),
+      message: serializer.fromJson<String>(json['message']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'phone': serializer.toJson<String>(phone),
+      'message': serializer.toJson<String>(message),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PendingMessage copyWith(
+          {int? id, String? phone, String? message, DateTime? createdAt}) =>
+      PendingMessage(
+        id: id ?? this.id,
+        phone: phone ?? this.phone,
+        message: message ?? this.message,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  PendingMessage copyWithCompanion(PendingMessagesCompanion data) {
+    return PendingMessage(
+      id: data.id.present ? data.id.value : this.id,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      message: data.message.present ? data.message.value : this.message,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingMessage(')
+          ..write('id: $id, ')
+          ..write('phone: $phone, ')
+          ..write('message: $message, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, phone, message, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PendingMessage &&
+          other.id == this.id &&
+          other.phone == this.phone &&
+          other.message == this.message &&
+          other.createdAt == this.createdAt);
+}
+
+class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
+  final Value<int> id;
+  final Value<String> phone;
+  final Value<String> message;
+  final Value<DateTime> createdAt;
+  const PendingMessagesCompanion({
+    this.id = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.message = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  PendingMessagesCompanion.insert({
+    this.id = const Value.absent(),
+    required String phone,
+    required String message,
+    this.createdAt = const Value.absent(),
+  })  : phone = Value(phone),
+        message = Value(message);
+  static Insertable<PendingMessage> custom({
+    Expression<int>? id,
+    Expression<String>? phone,
+    Expression<String>? message,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (phone != null) 'phone': phone,
+      if (message != null) 'message': message,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  PendingMessagesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? phone,
+      Value<String>? message,
+      Value<DateTime>? createdAt}) {
+    return PendingMessagesCompanion(
+      id: id ?? this.id,
+      phone: phone ?? this.phone,
+      message: message ?? this.message,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (message.present) {
+      map['message'] = Variable<String>(message.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('phone: $phone, ')
+          ..write('message: $message, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $CustomersTable customers = $CustomersTable(this);
   late final $ReceiptsTable receipts = $ReceiptsTable(this);
+  late final $PendingMessagesTable pendingMessages =
+      $PendingMessagesTable(this);
   late final CustomerDao customerDao = CustomerDao(this as AppDatabase);
   late final ReceiptDao receiptDao = ReceiptDao(this as AppDatabase);
+  late final PendingMessageDao pendingMessageDao =
+      PendingMessageDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [customers, receipts];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [customers, receipts, pendingMessages];
 }
 
 typedef $$CustomersTableCreateCompanionBuilder = CustomersCompanion Function({
@@ -1495,6 +1756,159 @@ typedef $$ReceiptsTableProcessedTableManager = ProcessedTableManager<
     (Receipt, BaseReferences<_$AppDatabase, $ReceiptsTable, Receipt>),
     Receipt,
     PrefetchHooks Function()>;
+typedef $$PendingMessagesTableCreateCompanionBuilder = PendingMessagesCompanion
+    Function({
+  Value<int> id,
+  required String phone,
+  required String message,
+  Value<DateTime> createdAt,
+});
+typedef $$PendingMessagesTableUpdateCompanionBuilder = PendingMessagesCompanion
+    Function({
+  Value<int> id,
+  Value<String> phone,
+  Value<String> message,
+  Value<DateTime> createdAt,
+});
+
+class $$PendingMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $PendingMessagesTable> {
+  $$PendingMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get phone => $composableBuilder(
+      column: $table.phone, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$PendingMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PendingMessagesTable> {
+  $$PendingMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+      column: $table.phone, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PendingMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PendingMessagesTable> {
+  $$PendingMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$PendingMessagesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PendingMessagesTable,
+    PendingMessage,
+    $$PendingMessagesTableFilterComposer,
+    $$PendingMessagesTableOrderingComposer,
+    $$PendingMessagesTableAnnotationComposer,
+    $$PendingMessagesTableCreateCompanionBuilder,
+    $$PendingMessagesTableUpdateCompanionBuilder,
+    (
+      PendingMessage,
+      BaseReferences<_$AppDatabase, $PendingMessagesTable, PendingMessage>
+    ),
+    PendingMessage,
+    PrefetchHooks Function()> {
+  $$PendingMessagesTableTableManager(
+      _$AppDatabase db, $PendingMessagesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PendingMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingMessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PendingMessagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> phone = const Value.absent(),
+            Value<String> message = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              PendingMessagesCompanion(
+            id: id,
+            phone: phone,
+            message: message,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String phone,
+            required String message,
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              PendingMessagesCompanion.insert(
+            id: id,
+            phone: phone,
+            message: message,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PendingMessagesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PendingMessagesTable,
+    PendingMessage,
+    $$PendingMessagesTableFilterComposer,
+    $$PendingMessagesTableOrderingComposer,
+    $$PendingMessagesTableAnnotationComposer,
+    $$PendingMessagesTableCreateCompanionBuilder,
+    $$PendingMessagesTableUpdateCompanionBuilder,
+    (
+      PendingMessage,
+      BaseReferences<_$AppDatabase, $PendingMessagesTable, PendingMessage>
+    ),
+    PendingMessage,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1503,4 +1917,6 @@ class $AppDatabaseManager {
       $$CustomersTableTableManager(_db, _db.customers);
   $$ReceiptsTableTableManager get receipts =>
       $$ReceiptsTableTableManager(_db, _db.receipts);
+  $$PendingMessagesTableTableManager get pendingMessages =>
+      $$PendingMessagesTableTableManager(_db, _db.pendingMessages);
 }

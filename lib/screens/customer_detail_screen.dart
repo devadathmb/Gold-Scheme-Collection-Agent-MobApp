@@ -6,6 +6,7 @@ import '../data/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/gold_rate_provider.dart';
 import '../utils/app_theme.dart';
+import '../services/sms_service.dart'; // ADDED THIS IMPORT
 import 'package:drift/drift.dart' show Value;
 
 final singleCustomerProvider = StreamProvider.family<Customer?, int>((ref, id) {
@@ -86,6 +87,20 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
             remarks: Value(_notesController.text.trim()),
           ));
 
+      // --- ADDED SMS TRIGGER ---
+      // Fire and forget (no await) so it doesn't block the UI
+      ref.read(smsServiceProvider).sendPaymentConfirmation(
+            phone: customer.phone,
+            name: customer.name,
+            amount: amount,
+            eqWt: eqWtAdded,
+            goldRate: goldRate,
+            paymentMethod: _paymentMethod,
+            passbookId: customer.passBookNo,
+            entryDateTime: DateTime.now(),
+          );
+      // -------------------------
+
       setState(() {
         _isDirty = false;
         _isSaving = false;
@@ -113,6 +128,31 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
     }
   }
 
+  Future<void> _confirmSave(BuildContext context, Customer customer) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Save'),
+        content: Text(
+            'Are you sure you want to save this collection of ₹${_amountController.text.trim()}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes, Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _save(customer);
+    }
+  }
+
   Future<void> _cancelEntry(Customer customer, int receiptId) async {
     setState(() => _isSaving = true);
     try {
@@ -122,6 +162,16 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
             notes: '',
           );
       await ref.read(receiptDaoProvider).cancelReceipt(receiptId);
+
+      // --- ADDED SMS TRIGGER ---
+      ref.read(smsServiceProvider).sendCancellationNotice(
+            phone: customer.phone,
+            name: customer.name,
+            amount: customer.receivedAmount,
+            passbookId: customer.passBookNo,
+            entryDateTime: DateTime.now(),
+          );
+      // -------------------------
 
       setState(() {
         _amountController.clear();
@@ -148,6 +198,33 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
               content: Text('Error: $e'), backgroundColor: AppTheme.danger),
         );
       }
+    }
+  }
+
+  Future<void> _confirmCancel(
+      BuildContext context, Customer customer, int receiptId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Entry'),
+        content: const Text(
+            'Are you sure you want to cancel this entry? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes, Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _cancelEntry(customer, receiptId);
     }
   }
 
@@ -463,8 +540,8 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
                               ),
                               onPressed: (_isSaving || !isLastGlobalEntry)
                                   ? null
-                                  : () =>
-                                      _cancelEntry(customer, lastReceipt.id),
+                                  : () => _confirmCancel(context, customer,
+                                      lastReceipt.id), // UPDATED HERE
                             ),
                           ),
                         ] else ...[
@@ -483,7 +560,9 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 12),
                               ),
-                              onPressed: canSave ? () => _save(customer) : null,
+                              onPressed: canSave
+                                  ? () => _confirmSave(context, customer)
+                                  : null, // UPDATED HERE
                             ),
                           ),
                         ],

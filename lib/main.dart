@@ -1,11 +1,13 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:connectivity_plus/connectivity_plus.dart'; // ADDED THIS
 import 'utils/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
-import 'screens/splash_screen.dart'; // Import your new splash screen
+import 'screens/splash_screen.dart';
 import 'providers/auth_provider.dart';
+import 'services/sms_service.dart'; // ADDED THIS
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,12 +18,28 @@ void main() {
   );
 }
 
-class CollectionAgentApp extends ConsumerWidget {
+class CollectionAgentApp extends ConsumerStatefulWidget {
   const CollectionAgentApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch both the splash timer and the authentication state
+  ConsumerState<CollectionAgentApp> createState() => _CollectionAgentAppState();
+}
+
+class _CollectionAgentAppState extends ConsumerState<CollectionAgentApp> {
+  
+  @override
+  void initState() {
+    super.initState();
+    // Listen for network changes to retry pending messages
+    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+      if (!results.contains(ConnectivityResult.none)) {
+        ref.read(smsServiceProvider).retryPendingMessages();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final splashState = ref.watch(splashTimerProvider);
     final isAuthenticated = ref.watch(authProvider);
 
@@ -29,16 +47,9 @@ class CollectionAgentApp extends ConsumerWidget {
       title: 'Collection Agent',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      
-      // Use the .when() method to gracefully switch screens
       home: splashState.when(
-        // When the 2.2 seconds are up, show the actual app
         data: (_) => isAuthenticated ? const HomeScreen() : const LoginScreen(),
-        
-        // While the timer is ticking, show the cool animation
         loading: () => const AnimatedSplashScreen(),
-        
-        // Fallback just in case
         error: (_, __) => isAuthenticated ? const HomeScreen() : const LoginScreen(),
       ),
     );

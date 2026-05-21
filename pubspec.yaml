@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.2.0
 
   # Database
   drift: ^2.14.0
@@ -33,6 +34,7 @@ dependencies:
   # UI utilities
   intl: ^0.18.1
   cupertino_icons: ^1.0.6
+  connectivity_plus: ^6.0.3 # ADDED THIS
 
 dev_dependencies:
   flutter_test:
