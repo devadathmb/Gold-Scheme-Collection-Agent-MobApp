@@ -1,4 +1,3 @@
-```markdown
 # Field Collection Agent App
 
 A Flutter mobile application for field collection agents to securely manage customer payment collections and calculate gold equivalent weights.
